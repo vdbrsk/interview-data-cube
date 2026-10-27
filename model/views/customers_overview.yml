@@ -1,0 +1,12 @@
+views:
+  - name: customers_overview
+    description: "Customer counts by signup date and acquisition attributes."
+    cubes:
+      - join_path: customers
+        includes:
+          - customers
+          - paying_customers
+          - signup_at
+          - first_paid_at
+          - country
+          - acquisition_channel

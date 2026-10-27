@@ -1,0 +1,47 @@
+# Mirrors dbt model `fct_orders` (repo: interview-data-dbt). One row per billing event.
+cubes:
+  - name: orders
+    sql_table: marts.fct_orders
+    public: false
+    meta:
+      dbt_model: fct_orders
+
+    joins:
+      - name: customers
+        sql: "{CUBE}.customer_id = {customers.customer_id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: order_id
+        sql: order_id
+        type: number
+        primary_key: true
+
+      - name: order_type
+        sql: order_type
+        type: string
+
+      - name: status
+        sql: status
+        type: string
+
+      - name: created_at
+        sql: created_at
+        type: time
+
+      - name: paid_at
+        sql: paid_at
+        type: time
+
+    measures:
+      - name: revenue
+        description: "Net revenue in USD: settled purchases and renewals minus refunds."
+        sql: revenue_usd
+        type: sum
+        format: currency
+
+      - name: paid_orders
+        description: "Billing events with a payment timestamp, refunds included."
+        type: count
+        filters:
+          - sql: "{CUBE}.paid_at IS NOT NULL"

@@ -1,0 +1,57 @@
+# Mirrors dbt model `fct_subscriptions` (repo: interview-data-dbt). One row per subscription.
+cubes:
+  - name: subscriptions
+    sql_table: marts.fct_subscriptions
+    public: false
+    meta:
+      dbt_model: fct_subscriptions
+
+    joins:
+      - name: customers
+        sql: "{CUBE}.customer_id = {customers.customer_id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: subscription_id
+        sql: subscription_id
+        type: number
+        primary_key: true
+
+      - name: subject
+        sql: subject
+        type: string
+
+      - name: status
+        sql: status
+        type: string
+
+      - name: plan_months
+        sql: plan_months
+        type: number
+
+      - name: started_at
+        sql: started_at
+        type: time
+
+      - name: ended_at
+        sql: ended_at
+        type: time
+
+    measures:
+      - name: subscriptions
+        description: "All subscriptions regardless of status."
+        type: count
+
+      - name: active_subscriptions
+        description: "Subscriptions with status ACTIVE (trialing and paused excluded)."
+        type: count
+        filters:
+          - sql: "{CUBE}.is_active"
+
+      - name: active_mrr
+        description: "Monthly price in USD of active subscriptions."
+        sql: monthly_price_usd
+        type: sum
+        format: currency
+        filters:
+          - sql: "{CUBE}.is_active"

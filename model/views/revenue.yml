@@ -1,0 +1,16 @@
+views:
+  - name: revenue
+    description: "Net revenue by payment date, sliceable by customer attributes."
+    cubes:
+      - join_path: orders
+        includes:
+          - revenue
+          - paid_orders
+          - paid_at
+          - order_type
+
+      - join_path: orders.customers
+        prefix: true
+        includes:
+          - country
+          - acquisition_channel

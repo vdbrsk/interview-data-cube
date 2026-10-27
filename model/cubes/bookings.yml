@@ -1,0 +1,60 @@
+# Mirrors dbt model `fct_bookings` (repo: interview-data-dbt). One row per demo or lesson slot.
+cubes:
+  - name: bookings
+    sql_table: marts.fct_bookings
+    public: false
+    meta:
+      dbt_model: fct_bookings
+
+    joins:
+      - name: customers
+        sql: "{CUBE}.customer_id = {customers.customer_id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: booking_id
+        sql: booking_id
+        type: number
+        primary_key: true
+
+      - name: tutor_id
+        sql: tutor_id
+        type: number
+
+      - name: booking_type
+        sql: booking_type
+        type: string
+
+      - name: status
+        sql: status
+        type: string
+
+      - name: scheduled_at
+        sql: scheduled_at
+        type: time
+
+    measures:
+      - name: total_bookings
+        description: "All booking slots, any type and status."
+        type: count
+
+      - name: lessons_attended
+        type: count
+        filters:
+          - sql: "{CUBE}.booking_type = 'LESSON' AND {CUBE}.is_attended"
+
+      - name: demos_attended
+        type: count
+        filters:
+          - sql: "{CUBE}.is_demo AND {CUBE}.is_attended"
+
+      - name: demos_no_show
+        type: count
+        filters:
+          - sql: "{CUBE}.is_demo AND {CUBE}.status = 'NO_SHOW'"
+
+      - name: demo_show_up_rate
+        description: "Attended / (attended + no-show) over demo bookings. Canceled and upcoming demos excluded."
+        sql: "SAFE_DIVIDE({demos_attended}, {demos_attended} + {demos_no_show})"
+        type: number
+        format: percent

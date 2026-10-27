@@ -1,0 +1,19 @@
+views:
+  - name: subscriptions_overview
+    description: "Subscription counts and recurring revenue by status, subject and customer attributes."
+    cubes:
+      - join_path: subscriptions
+        includes:
+          - subscriptions
+          - active_subscriptions
+          - active_mrr
+          - subject
+          - status
+          - plan_months
+          - started_at
+
+      - join_path: subscriptions.customers
+        prefix: true
+        includes:
+          - country
+          - acquisition_channel

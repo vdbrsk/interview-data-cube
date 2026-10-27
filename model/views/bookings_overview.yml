@@ -1,0 +1,20 @@
+views:
+  - name: bookings_overview
+    description: "Demo funnel and lesson volume by tutor, type and status."
+    cubes:
+      - join_path: bookings
+        includes:
+          - total_bookings
+          - lessons_attended
+          - demos_attended
+          - demos_no_show
+          - demo_show_up_rate
+          - tutor_id
+          - booking_type
+          - status
+          - scheduled_at
+
+      - join_path: bookings.customers
+        prefix: true
+        includes:
+          - acquisition_channel
